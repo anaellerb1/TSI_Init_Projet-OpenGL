@@ -12,6 +12,15 @@ class Game(object):
 
     def __init__(self):
         self.window = self.init_window()
+
+        self.fov = 50.0 
+        self.x = 0.0
+        self.y = 0.0
+        self.z = -5
+        self.i = 0
+        self.j = 0
+        self.k = 0
+
         self.init_context()
         self.init_programs()
         self.init_data()
@@ -105,25 +114,56 @@ class Game(object):
         """
         # Boucle principale du jeu
         while not glfw.window_should_close(self.window):
-            #GL.glClearColor(0.1, 0.1, 0.1, 1.0) # Couleur de fond de la fenêtre ici gris foncé
-            GL.glClearColor(1.0, 1.0, 1.0, 1.0)
+            GL.glClearColor(0.1, 0.1, 0.1, 1.0) # Couleur de fond de la fenêtre ici gris foncé
 
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-            # Matrice de vue : caméra positionnée à (0, 0, 3) regardant vers l'origine
-            #projection = pyrr.matrix44.create_perspective_projection_matrix(45, 1, 0.1, 100)
-            #loc_proj = GL.glGetUniformLocation(self.program, "projection")
-            #GL.glUniformMatrix4fv(loc_proj, 1, GL.GL_FALSE, projection)
+            # touches directionnelles
+            if glfw.get_key(self.window, glfw.KEY_LEFT) == glfw.PRESS:
+                self.x -= 0.1
+            if glfw.get_key(self.window, glfw.KEY_RIGHT) == glfw.PRESS:
+                self.x += 0.1
+            if glfw.get_key(self.window, glfw.KEY_UP) == glfw.PRESS:
+                self.y += 0.1
+            if glfw.get_key(self.window, glfw.KEY_DOWN) == glfw.PRESS:
+                self.y -= 0.1
 
-            # Matrice modèle : translation pour éloigner le plan
-            #model = pyrr.matrix44.create_from_translation([0, 0, -3])
-            #loc_model = GL.glGetUniformLocation(self.program, "model")
-            #GL.glUniformMatrix4fv(loc_model, 1, GL.GL_FALSE, model)
+            # touches de profondeur
+            if glfw.get_key(self.window, glfw.KEY_Y) == glfw.PRESS:
+                self.z += 0.1
+            if glfw.get_key(self.window, glfw.KEY_H) == glfw.PRESS:
+                self.z -= 0.1
 
+            # touches de rotation
+            if glfw.get_key(self.window, glfw.KEY_I) == glfw.PRESS:
+                self.i += 0.1
+            if glfw.get_key(self.window, glfw.KEY_J) == glfw.PRESS:
+                self.i -= 0.1
+            if glfw.get_key(self.window, glfw.KEY_K) == glfw.PRESS:
+                self.j += 0.1
+            if glfw.get_key(self.window, glfw.KEY_L) == glfw.PRESS:
+                self.j -= 0.1
+
+            xrotation = pyrr.matrix44.create_from_x_rotation(self.i)
+            yrotation = pyrr.matrix44.create_from_y_rotation(self.j)
+            rotation = xrotation @ yrotation
+
+            # Gestion de la caméra
+            prog = GL.glGetIntegerv(GL.GL_CURRENT_PROGRAM)
+            projection = pyrr.matrix44.create_perspective_projection_matrix(self.fov, 1, 0.5, 10)
+            
+            loc_proj = GL.glGetUniformLocation(prog, "projection")
+            GL.glUniformMatrix4fv(loc_proj, 1, GL.GL_FALSE, projection)
+
+            loc_trans = GL.glGetUniformLocation(prog, "translation")
+            GL.glUniform4f(loc_trans, self.x, self.y, self.z, 1.0)
+
+            loc_rot = GL.glGetUniformLocation(prog, "rotation")
+            GL.glUniformMatrix4fv(loc_rot, 1, GL.GL_FALSE, rotation)
 
             # Dessin du plan
             GL.glBindVertexArray(self.vao)
-            print("Drawing VAO", self.vao, "with", self.nb_indices, "indices")
+            #print("Drawing VAO", self.vao, "with", self.nb_indices, "indices")
             GL.glDrawElements(GL.GL_TRIANGLES, self.nb_indices, GL.GL_UNSIGNED_INT, None)
 
 

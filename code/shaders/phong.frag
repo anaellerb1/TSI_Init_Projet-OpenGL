@@ -5,6 +5,10 @@ in vec3 v_normale;
 in vec3 frag_pos;
 in vec2 frag_uv;
 
+// Déplacements
+in vec3 coordonnee_3d;
+in vec3 coordonnee_3d_locale;
+
 out vec4 color;
 
 void main() {
