@@ -77,27 +77,23 @@ class Game(object):
         GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL.GL_STATIC_DRAW)
         
         # Configuration des attributs (position, normale, couleur, UV)
-        octets_par_sommet = 6 * sizeof(c_float) 
-
-        octets_par_sommet = 6 * sizeof(c_float)
+        octets_par_sommet = 11 * sizeof(c_float) 
 
         position_location = GL.glGetAttribLocation(self.program, "position")
         GL.glVertexAttribPointer(position_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(0))
         GL.glEnableVertexAttribArray(position_location)
 
+        normale_location = GL.glGetAttribLocation(self.program, "normale")
+        GL.glVertexAttribPointer(normale_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(3 * sizeof(c_float)))
+        GL.glEnableVertexAttribArray(normale_location)
+
         couleur_location = GL.glGetAttribLocation(self.program, "couleur")
-        GL.glVertexAttribPointer(couleur_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(3 * sizeof(c_float)))
+        GL.glVertexAttribPointer(couleur_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(6 * sizeof(c_float)))
         GL.glEnableVertexAttribArray(couleur_location)
 
-
-        # normale_location = GL.glGetAttribLocation(self.program, "normale")
-        # GL.glVertexAttribPointer(normale_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(3 * sizeof(c_float)))
-        # GL.glEnableVertexAttribArray(normale_location)
-
-
-        # uv_location = GL.glGetAttribLocation(self.program, "uv")
-        # GL.glVertexAttribPointer(uv_location, 2, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(9 * sizeof(c_float)))
-        # GL.glEnableVertexAttribArray(uv_location)
+        uv_location = GL.glGetAttribLocation(self.program, "uv")
+        GL.glVertexAttribPointer(uv_location, 2, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(9 * sizeof(c_float)))
+        GL.glEnableVertexAttribArray(uv_location)
 
        
         pass
@@ -111,7 +107,7 @@ class Game(object):
         while not glfw.window_should_close(self.window):
             #GL.glClearColor(0.1, 0.1, 0.1, 1.0) # Couleur de fond de la fenêtre ici gris foncé
             GL.glClearColor(1.0, 1.0, 1.0, 1.0)
-            
+
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
             # Matrice de vue : caméra positionnée à (0, 0, 3) regardant vers l'origine

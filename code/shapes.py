@@ -16,8 +16,6 @@ def get_plane():
     p2 = ( 0.5,  0.5, 0)
     p3 = (-0.5,  0.5, 0)
 
-
-
     # Normales
     n0 = (0, 0, 1) # Normale pour le plan sur l'axe Z
     n1 = (0, 0, 1) # Normale pour le plan sur l'axe Z
@@ -37,21 +35,14 @@ def get_plane():
     uv3 = (0, 1) # Coordonn´ees de texture pour le coin supérieur gauche
         
     # Sommets du plan
-    """
+    
     sommets = np.array([
         *p0, *n0, *c0, *uv0,
         *p1, *n1, *c1, *uv1,
         *p2, *n2, *c2, *uv2,
         *p3, *n3, *c3, *uv3
     ], dtype=np.float32)
-
-    """
-    sommets = np.array([
-        *p0, *c0,
-        *p1, *c1,
-        *p2, *c2,
-        *p3, *c3
-    ], dtype=np.float32)
+    
 
     # Faces du plan
     f0 = (0, 1, 2) # Triangle inférieur droit
