@@ -5,6 +5,9 @@ import glfw
 import numpy as np
 import tools 
 import pyrr
+
+
+from PIL import Image
 from ctypes import sizeof, c_float, c_void_p
 from shapes import get_plane, get_cube
 class Game(object):
@@ -104,7 +107,11 @@ class Game(object):
         GL.glVertexAttribPointer(uv_location, 2, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(9 * sizeof(c_float)))
         GL.glEnableVertexAttribArray(uv_location)
 
-       
+        # Gestion des textures
+        self.texture = self.load_texture("code/assets/texture1.jpg")
+        GL.glUseProgram(self.program)
+        GL.glUniform1i(GL.glGetUniformLocation(self.program, "tex"), 0)
+
         pass
 
     def run(self):
@@ -115,7 +122,6 @@ class Game(object):
         # Boucle principale du jeu
         while not glfw.window_should_close(self.window):
             GL.glClearColor(0.1, 0.1, 0.1, 1.0) # Couleur de fond de la fenêtre ici gris foncé
-
             GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
             # touches directionnelles
@@ -164,6 +170,7 @@ class Game(object):
             # Dessin du plan
             GL.glBindVertexArray(self.vao)
             #print("Drawing VAO", self.vao, "with", self.nb_indices, "indices")
+            GL.glBindTexture(GL.GL_TEXTURE_2D, self.texture)
             GL.glDrawElements(GL.GL_TRIANGLES, self.nb_indices, GL.GL_UNSIGNED_INT, None)
 
 
@@ -187,6 +194,26 @@ class Game(object):
         """
         if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
             glfw.set_window_should_close(win, glfw.TRUE)
+    
+    def load_texture(self, path):
+        image = Image.open(path).transpose(Image.FLIP_TOP_BOTTOM).convert("RGB")
+        img_data = np.array(image, dtype=np.uint8)
+
+        texture_id = GL.glGenTextures(1)
+        GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id)
+
+        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB,
+                        image.width, image.height, 0,
+                        GL.GL_RGB, GL.GL_UNSIGNED_BYTE, img_data)
+
+        GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
+
+        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
+        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
+        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR)
+        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
+
+        return texture_id
 
 def main():
     game = Game()

@@ -9,6 +9,9 @@ in vec2 frag_uv;
 in vec3 coordonnee_3d;
 in vec3 coordonnee_3d_locale;
 
+// Gérer les textures
+uniform sampler2D tex;
+
 out vec4 color;
 
 void main() {
@@ -18,6 +21,6 @@ void main() {
     float diffuse = max(dot(norm, light_dir), 0.0);
 
     vec3 final_color = (0.2 + 0.7 * diffuse) * v_color;
-    color = vec4(frag_uv, 0.0, 1.0);
+    color = texture(tex, frag_uv);
 
 }

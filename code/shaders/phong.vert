@@ -27,6 +27,8 @@ void main() {
   gl_Position = p;
 
   v_color = couleur;
+  
+
 
   v_normale = normale;
   frag_pos = position;
