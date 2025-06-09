@@ -6,7 +6,7 @@ import numpy as np
 import tools 
 import pyrr
 from ctypes import sizeof, c_float, c_void_p
-from shapes import get_plane
+from shapes import get_plane, get_cube
 class Game(object):
     """ Classe principale : fenêtre GLFW avec OpenGL """
 
@@ -68,7 +68,7 @@ class Game(object):
         initialisation des données OpenGL (VBO, VAO, textures, etc.)
         :return: None
         """
-        sommets, indices = get_plane()
+        sommets, indices = get_cube() 
         self.nb_indices = len(indices)
 
         # Création du VAO : pour les attributs de sommets (positions, normales, couleurs, UV)
