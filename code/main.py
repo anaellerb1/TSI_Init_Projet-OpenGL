@@ -107,15 +107,29 @@ class Game(object):
         GL.glVertexAttribPointer(uv_location, 2, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(9 * sizeof(c_float)))
         GL.glEnableVertexAttribArray(uv_location)
 
-        # Gestion des textures
+        # Bloc minecraft
+        face_terre = self.load_texture("code/assets/faceterre.png")
+        face_herbe = self.load_texture("code/assets/faceherbe.png")
+        face_cote = self.load_texture("code/assets/facecote.png")
         self.textures = [
-            self.load_texture("code/assets/1.png"),  # Face avant
-            self.load_texture("code/assets/2.png"),  # Face arrière
-            self.load_texture("code/assets/3.png"),  # Droite
-            self.load_texture("code/assets/4.png"),  # Gauche
-            self.load_texture("code/assets/5.png"),  # Haut
-            self.load_texture("code/assets/6.png"),  # Bas
+            face_cote,  # Face avant
+            face_cote,  # Face arrière
+            face_cote,  # Droite
+            face_cote,  # Gauche
+            face_herbe, # Haut
+            face_terre,  # Bas
         ]
+
+        # Gestion des textures
+        # self.textures = [
+        #     self.load_texture("code/assets/1.png"),  # Face avant
+        #     self.load_texture("code/assets/2.png"),  # Face arrière
+        #     self.load_texture("code/assets/3.png"),  # Droite
+        #     self.load_texture("code/assets/4.png"),  # Gauche
+        #     self.load_texture("code/assets/5.png"),  # Haut
+        #     self.load_texture("code/assets/6.png"),  # Bas
+        # ]
+
 
         GL.glUseProgram(self.program)
         GL.glUniform1i(GL.glGetUniformLocation(self.program, "tex"), 0)
@@ -180,9 +194,9 @@ class Game(object):
             #print("Drawing VAO", self.vao, "with", self.nb_indices, "indices")
 
 
-            for i in range(len(self.textures)):  # 6 faces
+            for i in range(len(self.textures)):  
                 GL.glBindTexture(GL.GL_TEXTURE_2D, self.textures[i])
-                offset = c_void_p(i * 6 * sizeof(GL.GLuint))  # chaque face a 2 triangles = 6 indices
+                offset = c_void_p(i * len(self.textures) * sizeof(GL.GLuint))
                 GL.glDrawElements(GL.GL_TRIANGLES, 6, GL.GL_UNSIGNED_INT, offset)
 
 
