@@ -2,6 +2,7 @@ import OpenGL.GL as GL
 import glfw
 import numpy as np
 import os
+from ctypes import sizeof, c_float, c_void_p
 
 def compile_shader(shader_content, shader_type):
         # compilation d'un shader donné selon son type
@@ -46,3 +47,48 @@ def create_program_from_file(vs_file, fs_file):
         else print(f'{25*"-"}\nError reading file:\n{fs_file}\n{25*"-"}')
 
     return create_program(vs_content, fs_content)
+
+def config_shape(sommets, indices, program):
+    """
+    Configure une forme 3D en créant et liant le VAO, VBO et EBO.
+    Attribue les attributs de sommets (position, normale, couleur, UV).
+
+    Retourne :
+        vao : identifiant du VAO
+        nb_indices : nombre d’indices (entiers)
+    """
+    # Création du VAO : pour les attributs de sommets (positions, normales, couleurs, UV)
+    vao = GL.glGenVertexArrays(1) # Génération d'un VAO
+    GL.glBindVertexArray(vao) # On lie le VAO pour l'utiliser
+
+    # Création du VBO : pour les sommets
+    vbo = GL.glGenBuffers(1) 
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, sommets.nbytes, sommets, GL.GL_STATIC_DRAW) # On envoie les données du VBO dans la mémoire GPU : nbytes = nombre d'octets
+
+    # Création de l'EBO (Element Buffer Object = indices)
+    ebo = GL.glGenBuffers(1)
+    GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, ebo)
+    GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL.GL_STATIC_DRAW)
+    
+    # Configuration des attributs (position, normale, couleur, UV)
+    octets_par_sommet = 11 * sizeof(c_float) 
+
+    position_location = GL.glGetAttribLocation(program, "position")
+    GL.glVertexAttribPointer(position_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(0))
+    GL.glEnableVertexAttribArray(position_location)
+
+    normale_location = GL.glGetAttribLocation(program, "normale")
+    GL.glVertexAttribPointer(normale_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(3 * sizeof(c_float)))
+    GL.glEnableVertexAttribArray(normale_location)
+
+    couleur_location = GL.glGetAttribLocation(program, "couleur")
+    GL.glVertexAttribPointer(couleur_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(6 * sizeof(c_float)))
+    GL.glEnableVertexAttribArray(couleur_location)
+
+    uv_location = GL.glGetAttribLocation(program, "uv")
+    GL.glVertexAttribPointer(uv_location, 2, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(9 * sizeof(c_float)))
+    GL.glEnableVertexAttribArray(uv_location)
+
+
+    return vao, len(indices)

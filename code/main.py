@@ -74,38 +74,7 @@ class Game(object):
         sommets, indices = get_cube() 
         self.nb_indices = len(indices)
 
-        # Création du VAO : pour les attributs de sommets (positions, normales, couleurs, UV)
-        self.vao = GL.glGenVertexArrays(1) # Génération d'un VAO
-        GL.glBindVertexArray(self.vao) # On lie le VAO pour l'utiliser
-
-        # Création du VBO : pour les sommets
-        self.vbo = GL.glGenBuffers(1) 
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
-        GL.glBufferData(GL.GL_ARRAY_BUFFER, sommets.nbytes, sommets, GL.GL_STATIC_DRAW) # On envoie les données du VBO dans la mémoire GPU : nbytes = nombre d'octets
-
-        # Création de l'EBO (Element Buffer Object = indices)
-        self.ebo = GL.glGenBuffers(1)
-        GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, self.ebo)
-        GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL.GL_STATIC_DRAW)
-        
-        # Configuration des attributs (position, normale, couleur, UV)
-        octets_par_sommet = 11 * sizeof(c_float) 
-
-        position_location = GL.glGetAttribLocation(self.program, "position")
-        GL.glVertexAttribPointer(position_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(0))
-        GL.glEnableVertexAttribArray(position_location)
-
-        normale_location = GL.glGetAttribLocation(self.program, "normale")
-        GL.glVertexAttribPointer(normale_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(3 * sizeof(c_float)))
-        GL.glEnableVertexAttribArray(normale_location)
-
-        couleur_location = GL.glGetAttribLocation(self.program, "couleur")
-        GL.glVertexAttribPointer(couleur_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(6 * sizeof(c_float)))
-        GL.glEnableVertexAttribArray(couleur_location)
-
-        uv_location = GL.glGetAttribLocation(self.program, "uv")
-        GL.glVertexAttribPointer(uv_location, 2, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(9 * sizeof(c_float)))
-        GL.glEnableVertexAttribArray(uv_location)
+        self.vao, self.nb_indices = tools.config_shape(sommets, indices, self.program)
 
         # Bloc minecraft
         face_terre = self.load_texture("code/assets/faceterre.png")
