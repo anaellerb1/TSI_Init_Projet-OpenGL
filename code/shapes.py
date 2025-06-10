@@ -2,7 +2,7 @@
 
 import numpy as np
 
-def get_plane():
+def get_plan():
     """
     Renvoie les données d’un plan simple sur l’axe Z.
 

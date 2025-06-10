@@ -9,7 +9,7 @@ import pyrr
 
 from PIL import Image
 from ctypes import sizeof, c_float, c_void_p
-from shapes import get_plane, get_cube
+from shapes import get_plan, get_cube
 class Game(object):
     """ Classe principale : fenêtre GLFW avec OpenGL """
 
@@ -71,10 +71,17 @@ class Game(object):
         initialisation des données OpenGL (VBO, VAO, textures, etc.)
         :return: None
         """
-        sommets, indices = get_cube() 
-        self.nb_indices = len(indices)
+        program = self.program
+        sommets_cube, indices_cube = get_cube() 
+        self.nb_indices = len(indices_cube)
 
-        self.vao, self.nb_indices = tools.config_shape(sommets, indices, self.program)
+        self.vao, self.nb_indices = tools.config_shape(sommets_cube, indices_cube, program, forme='cube')
+
+        # sommets_plan, indices_plan = get_plan() 
+        # self.nb_indices = len(indices_plan)
+        # vao_plan, nb_plan = tools.config_shape(sommets_plan, indices_plan, program, forme='plan')
+
+        # self.vao = [vao_cube, vao_plan]  # On utilise le VAO du plan pour dessiner
 
         # Bloc minecraft
         face_terre = self.load_texture("code/assets/faceterre.png")

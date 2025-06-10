@@ -48,47 +48,62 @@ def create_program_from_file(vs_file, fs_file):
 
     return create_program(vs_content, fs_content)
 
-def config_shape(sommets, indices, program):
+def config_shape(sommets, indices, program, forme):
     """
     Configure une forme 3D en créant et liant le VAO, VBO et EBO.
-    Attribue les attributs de sommets (position, normale, couleur, UV).
+    Attribue les attributs de sommets (position, normale, couleur, UV),
+    en fonction de la forme indiquée (cube, plan, sphère...).
+
+    Paramètres :
+        sommets : np.array des sommets
+        indices : np.array des indices
+        program : programme OpenGL (shader actif)
+        forme : str, nom de la forme (ex : 'cube', 'plan', 'sphere')
 
     Retourne :
         vao : identifiant du VAO
         nb_indices : nombre d’indices (entiers)
     """
     # Création du VAO : pour les attributs de sommets (positions, normales, couleurs, UV)
-    vao = GL.glGenVertexArrays(1) # Génération d'un VAO
-    GL.glBindVertexArray(vao) # On lie le VAO pour l'utiliser
+    vao = GL.glGenVertexArrays(1)  # Génération d'un VAO
+    GL.glBindVertexArray(vao)     # On lie le VAO pour l'utiliser
 
     # Création du VBO : pour les sommets
     vbo = GL.glGenBuffers(1) 
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
-    GL.glBufferData(GL.GL_ARRAY_BUFFER, sommets.nbytes, sommets, GL.GL_STATIC_DRAW) # On envoie les données du VBO dans la mémoire GPU : nbytes = nombre d'octets
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, sommets.nbytes, sommets, GL.GL_STATIC_DRAW)
 
     # Création de l'EBO (Element Buffer Object = indices)
     ebo = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ELEMENT_ARRAY_BUFFER, ebo)
     GL.glBufferData(GL.GL_ELEMENT_ARRAY_BUFFER, indices.nbytes, indices, GL.GL_STATIC_DRAW)
-    
-    # Configuration des attributs (position, normale, couleur, UV)
-    octets_par_sommet = 11 * sizeof(c_float) 
 
-    position_location = GL.glGetAttribLocation(program, "position")
-    GL.glVertexAttribPointer(position_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(0))
-    GL.glEnableVertexAttribArray(position_location)
+    # Définition du format en fonction de la forme
+    if forme == 'cube' or forme == 'plan':
+        attributs = [
+            ("position", 3),
+            ("normale", 3),
+            ("couleur", 3),
+            ("uv", 2)
+        ]
+    elif forme == 'sphere':
+        attributs = [
+            ("position", 3),
+            ("normale", 3),
+            ("uv", 2)
+        ]
+    else:
+        raise ValueError(f"[Erreur] Forme non reconnue : '{forme}'")
 
-    normale_location = GL.glGetAttribLocation(program, "normale")
-    GL.glVertexAttribPointer(normale_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(3 * sizeof(c_float)))
-    GL.glEnableVertexAttribArray(normale_location)
+    octets_par_sommet = sommets.strides[0]
+    offset = 0
 
-    couleur_location = GL.glGetAttribLocation(program, "couleur")
-    GL.glVertexAttribPointer(couleur_location, 3, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(6 * sizeof(c_float)))
-    GL.glEnableVertexAttribArray(couleur_location)
-
-    uv_location = GL.glGetAttribLocation(program, "uv")
-    GL.glVertexAttribPointer(uv_location, 2, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(9 * sizeof(c_float)))
-    GL.glEnableVertexAttribArray(uv_location)
-
+    # Activation des attributs déclarés
+    for nom, taille in attributs:
+        location = GL.glGetAttribLocation(program, nom)
+        if location != -1:
+            GL.glVertexAttribPointer(location, taille, GL.GL_FLOAT, GL.GL_FALSE, octets_par_sommet, c_void_p(offset))
+            GL.glEnableVertexAttribArray(location)
+        offset += taille * sizeof(c_float)
 
     return vao, len(indices)
