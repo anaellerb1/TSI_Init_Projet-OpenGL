@@ -108,7 +108,15 @@ class Game(object):
         GL.glEnableVertexAttribArray(uv_location)
 
         # Gestion des textures
-        self.texture = self.load_texture("code/assets/texture1.jpg")
+        self.textures = [
+            self.load_texture("code/assets/1.png"),  # Face avant
+            self.load_texture("code/assets/2.png"),  # Face arrière
+            self.load_texture("code/assets/3.png"),  # Droite
+            self.load_texture("code/assets/4.png"),  # Gauche
+            self.load_texture("code/assets/5.png"),  # Haut
+            self.load_texture("code/assets/6.png"),  # Bas
+        ]
+
         GL.glUseProgram(self.program)
         GL.glUniform1i(GL.glGetUniformLocation(self.program, "tex"), 0)
 
@@ -170,8 +178,13 @@ class Game(object):
             # Dessin du plan
             GL.glBindVertexArray(self.vao)
             #print("Drawing VAO", self.vao, "with", self.nb_indices, "indices")
-            GL.glBindTexture(GL.GL_TEXTURE_2D, self.texture)
-            GL.glDrawElements(GL.GL_TRIANGLES, self.nb_indices, GL.GL_UNSIGNED_INT, None)
+
+
+            for i in range(len(self.textures)):  # 6 faces
+                GL.glBindTexture(GL.GL_TEXTURE_2D, self.textures[i])
+                offset = c_void_p(i * 6 * sizeof(GL.GLuint))  # chaque face a 2 triangles = 6 indices
+                GL.glDrawElements(GL.GL_TRIANGLES, 6, GL.GL_UNSIGNED_INT, offset)
+
 
 
 
